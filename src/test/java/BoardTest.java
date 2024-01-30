@@ -73,6 +73,7 @@ public class BoardTest {
         Board board = new Board(10, 10);
         Square square = board.getSquare(0, 0);
         board.uncoverSquare(0, 0);
-        Assertions.assertTrue(square.isUncovered(), "Square was not incovered");
+        Assertions.assertTrue(square.isUncovered(), "Square was not uncovered");
     }
+
 }
