@@ -13,48 +13,43 @@ public class Game {
 
     private boolean firstUncover = true;
 
-    public void playGame() {
-        System.out.println("Welcome to minesweeper!");
-        System.out.println("Enter the difficulty of this game: ");
-        System.out.println("1. Easy - approximately 10% of squares are bombs," +
-                "and you get 2 hints");
-        System.out.println("2. Medium - approximately 20% of squares are bombs," +
-                "and you get 1 hint");
-        System.out.println("3. Hard - approximately 40% of squares are bombs," +
-                "and you get no hints");
+    public void setupGame() {
+        Printer.printStartMessages();
         String difficulty = scanner.next().toLowerCase();
 
-        while (!difficulty.equals("easy") && !difficulty.equals("medium") && !difficulty.equals("hard")) {
-            System.out.println("Please enter a valid difficulty");
+        while (!difficulty.equals("easy")
+                && !difficulty.equals("medium")
+                && !difficulty.equals("hard")) {
+            Printer.printEnterValidDifficulty();
             difficulty = scanner.next().toLowerCase();
         }
 
-        System.out.println("Please enter a number of rows (min 5, max 50): ");
+        Printer.printEnterNumRows();
         Integer rows = null;
         while (rows == null) {
             scanner.nextLine();
             if (!scanner.hasNextInt()) {
-                System.out.println("Please enter a valid number of rows: ");
+                Printer.printEnterValidNumRows();
             } else {
                 int num = scanner.nextInt();
                 if (num < 5 || num > 50) {
-                    System.out.println("Please enter a valid number of rows: ");
+                    Printer.printEnterValidNumRows();
                 } else {
                     rows = num;
                 }
             }
         }
 
-        System.out.println("Please enter a number of columns (min 5, max 50): ");
+        Printer.printEnterNumCols();
         Integer columns = null;
         while (columns == null) {
             scanner.nextLine();
             if (!scanner.hasNextInt()) {
-                System.out.println("Please enter a valid number of columns: ");
+                Printer.printEnterValidNumCols();
             } else {
                 int num = scanner.nextInt();
                 if (num < 5 || num > 50) {
-                    System.out.println("Please enter a valid number of columns: ");
+                    Printer.printEnterValidNumCols();
                 } else {
                     columns = num;
                 }
@@ -79,32 +74,24 @@ public class Game {
         }
 
         board = new Board(rows, columns);
-        start();
+        playGame();
     }
 
-    private void start() {
+    private void playGame() {
         board.setMines(flags);
+
         while (!board.hasLost() && !board.hasWon()) {
-            System.out.println("Number of hints remaining: " + hints);
-            System.out.println("Number of flags remaining: " + (flags - board.getNumFlagged()));
-            System.out.println("The current state of the board looks like this:\n");
-            System.out.println(board.drawBoard());
-
-            System.out.println("1: Uncover a space");
-            System.out.println("2: Add or remove a flag");
-            System.out.println("3: Use a hint");
-
-            System.out.println("\nEnter your option: ");
+            Printer.printCurRound(board, hints, flags);
 
             Integer choice = null;
             while (choice == null) {
                 scanner.nextLine();
                 if (!scanner.hasNextInt()) {
-                    System.out.println("Please enter a valid choice: ");
+                    Printer.printEnterValidChoice();
                 } else {
                     int num = scanner.nextInt();
                     if (!choices.contains(num)) {
-                        System.out.println("Please enter a valid choice: ");
+                        Printer.printEnterValidChoice();
                     } else {
                         choice = num;
                     }
@@ -116,27 +103,19 @@ public class Game {
             } else if (choice == 2) {
                 toggleFlag();
             } else {
-                if (hints <= 0) {
-                    System.out.println("You have no hints remaining");
-                } else {
-                    if (flags == board.getNumFlagged()) {
-                        System.out.println("Please remove a flag before you " +
-                                "use your hint");
-                    } else {
-                        hints--;
-                        Integer[] discovered = board.useHint();
-                        System.out.println("Bomb flagged at row " + discovered[0]
-                        + ", column " + discovered[1]);
-                    }
-                }
+                useHint();
             }
         }
 
-        System.out.println(board.drawBoard());
+        endGame();
+    }
+
+    private void endGame() {
+        Printer.printBoard(board);
         if (board.hasWon()) {
-            System.out.println("You flagged all the bombs, you win!");
+            Printer.printYouWin();
         } else {
-            System.out.println("Oh no!, there was a bomb on that spot, you lose");
+            Printer.printYouLose();
         }
     }
 
@@ -242,6 +221,22 @@ public class Game {
             }
         } else {
             board.setFlag(chosenRow, chosenCol);
+        }
+    }
+
+    private void useHint() {
+        if (hints <= 0) {
+            System.out.println("You have no hints remaining");
+        } else {
+            if (flags == board.getNumFlagged()) {
+                System.out.println("Please remove a flag before you " +
+                        "use your hint");
+            } else {
+                hints--;
+                Integer[] discovered = board.useHint();
+                System.out.println("Bomb flagged at row " + discovered[0]
+                        + ", column " + discovered[1]);
+            }
         }
     }
 }
